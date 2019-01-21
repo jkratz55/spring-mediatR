@@ -1,11 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    java
     kotlin("jvm") version "1.3.11"
 }
 
-group = "io.kratz.spring.mediatr"
+group = "io.jkratz.springmediatr"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -14,12 +13,11 @@ repositories {
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
-    testCompile("junit", "junit", "4.12")
+    compile(kotlin("reflect"))
+    testCompile(kotlin("test-junit"))
+    compile(group = "org.springframework", name = "spring-context", version = "5.1.4.RELEASE")
 }
 
-configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-}
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
