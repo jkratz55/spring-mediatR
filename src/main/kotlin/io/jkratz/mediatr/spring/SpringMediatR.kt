@@ -11,34 +11,20 @@ import io.jkratz.mediatr.core.Command
 import kotlin.reflect.KClass
 
 
-class SpringMediatR @Autowired constructor(val applicationContext: ApplicationContext): MediatR {
+class SpringMediatR @Autowired constructor(private val applicationContext: ApplicationContext): MediatR {
 
+    private val registry: Registry = Registry(applicationContext)
 
-    init {
-
-        // Get all beans that implement CommandHandler interface and register them
-        applicationContext.getBeanNamesForType(CommandHandler::class.java)
-            .forEach { registerCommands(it) }
+    override fun <TCommand: Command<TResponse>, TResponse> execute(command: TCommand): TResponse {
+        val commandHandler = registry.get<TCommand, TResponse>(command::class.java)
+        return commandHandler.handle(command)
     }
 
-    private fun registerCommands(name: String) {
-        applicationContext.getType(name)?.let {handler ->
-            val generics = GenericTypeResolver.resolveTypeArguments(handler, CommandHandler::class.java)
-            val commandType = generics[1]
-            //commandRegistry.put(commandType, handler)
-        }
-
-    }
-
-    override fun <TResponse> dispatch(command: Command<TResponse>): TResponse {
+    override fun <TResponse> executeAsync(command: Command<TResponse>): CompletableFuture<TResponse> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun <TResponse> dispatchAsync(command: Command<TResponse>): CompletableFuture<TResponse> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun <TResponse> dispatchAsync(
+    override fun <TResponse> executeAsync(
         command: Command<TResponse>,
         executor: Executor
     ): CompletableFuture<TResponse> {

@@ -11,17 +11,17 @@ interface MediatR {
     /**
      *
      */
-    fun <TResponse> dispatch(command: Command<TResponse>): TResponse
+    fun <TCommand: Command<TResponse>, TResponse> execute(command: TCommand): TResponse
 
     /**
      *
      */
-    fun <TResponse> dispatchAsync(command: Command<TResponse>): CompletableFuture<TResponse>
+    fun <TResponse> executeAsync(command: Command<TResponse>): CompletableFuture<TResponse>
 
     /**
      *
      */
-    fun <TResponse> dispatchAsync(command: Command<TResponse>, executor: Executor): CompletableFuture<TResponse>
+    fun <TResponse> executeAsync(command: Command<TResponse>, executor: Executor): CompletableFuture<TResponse>
 
     /**
      *

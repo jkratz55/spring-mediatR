@@ -16,6 +16,7 @@ dependencies {
     compile(kotlin("reflect"))
     testCompile(kotlin("test-junit"))
     compile(group = "org.springframework", name = "spring-context", version = "5.1.4.RELEASE")
+    compile(group = "org.slf4j", name = "slf4j-api", version = "1.7.25")
 }
 
 tasks.withType<KotlinCompile> {
