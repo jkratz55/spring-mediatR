@@ -9,19 +9,14 @@ import java.util.concurrent.Executor
 interface MediatR {
 
     /**
-     *
+     * Executes a command
      */
     fun <TCommand: Command<TResponse>, TResponse> execute(command: TCommand): TResponse
 
     /**
-     *
+     * Executes a command asynchronously
      */
-    fun <TResponse> executeAsync(command: Command<TResponse>): CompletableFuture<TResponse>
-
-    /**
-     *
-     */
-    fun <TResponse> executeAsync(command: Command<TResponse>, executor: Executor): CompletableFuture<TResponse>
+    fun <TCommand: Command<TResponse>, TResponse> executeAsync(command: TCommand, executor: Executor? = null): CompletableFuture<TResponse>
 
     /**
      *
@@ -31,10 +26,5 @@ interface MediatR {
     /**
      *
      */
-    fun emitAsync(event: Event): CompletableFuture<Void>
-
-    /**
-     *
-     */
-    fun emitAsync(event: Event, executor: Executor): CompletableFuture<Void>
+    fun emitAsync(event: Event, executor: Executor? = null): CompletableFuture<Void>
 }
