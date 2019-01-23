@@ -8,7 +8,7 @@ interface Event
 /**
  *
  */
-interface EventHandler<E> {
+interface EventHandler<in TEvent> where TEvent: Event  {
 
     fun handle(event: Event)
 }

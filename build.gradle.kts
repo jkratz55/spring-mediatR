@@ -12,11 +12,13 @@ repositories {
 }
 
 dependencies {
-    compile(kotlin("stdlib-jdk8"))
-    compile(kotlin("reflect"))
-    testCompile(kotlin("test-junit"))
-    compile(group = "org.springframework", name = "spring-context", version = "5.1.4.RELEASE")
-    compile(group = "org.slf4j", name = "slf4j-api", version = "1.7.25")
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("reflect"))
+    implementation(group = "org.springframework", name = "spring-context", version = "5.1.4.RELEASE")
+    implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.25")
+    implementation(group = "javax.validation", name = "validation-api", version = "2.0.1.Final")
+
+    testImplementation(kotlin("test-junit"))
 }
 
 tasks.withType<KotlinCompile> {

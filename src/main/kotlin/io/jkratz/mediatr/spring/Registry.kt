@@ -2,6 +2,8 @@ package io.jkratz.mediatr.spring
 
 import io.jkratz.mediatr.core.Command
 import io.jkratz.mediatr.core.CommandHandler
+import io.jkratz.mediatr.core.Event
+import io.jkratz.mediatr.core.EventHandler
 import io.jkratz.mediatr.core.exception.MultipleCommandHandlerException
 import io.jkratz.mediatr.core.exception.NoCommandHandlerException
 import org.slf4j.Logger
@@ -10,13 +12,20 @@ import org.springframework.context.ApplicationContext
 import java.util.HashMap
 import org.springframework.core.GenericTypeResolver
 
+/**
+ *
+ */
 internal class Registry(val applicationContext: ApplicationContext) {
 
     private val commandRegistry: MutableMap<Class<out Command<*>>, CommandProvider<*>> = HashMap()
+    private val eventRegistry: MutableMap<Class<out Event>, EventProvider<*>> = HashMap()
 
     init {
         applicationContext.getBeanNamesForType(CommandHandler::class.java)
-            .forEach { register(it) }
+            .forEach { registerCommandHandler(it) }
+
+        applicationContext.getBeanNamesForType(EventHandler::class.java)
+            .forEach { registerEventHandler(it) }
     }
 
     fun <C : Command<R>,R> get(commandClass: Class<out C>): CommandHandler<C,R> {
@@ -25,8 +34,8 @@ internal class Registry(val applicationContext: ApplicationContext) {
         } ?: throw throw NoCommandHandlerException("No CommandHandler is registered to handle command of type ${commandClass.canonicalName}")
     }
 
-    private fun register(name: String) {
-        logger.debug("Registering CommandHandler with name ${name}")
+    private fun registerCommandHandler(name: String) {
+        logger.debug("Registering CommandHandler with name $name")
         val handler: CommandHandler<*,*> = applicationContext.getBean(name) as CommandHandler<*,*>
         val generics = GenericTypeResolver.resolveTypeArguments(handler::class.java, CommandHandler::class.java)
         generics?.let {
@@ -38,6 +47,10 @@ internal class Registry(val applicationContext: ApplicationContext) {
             commandRegistry[commandType] = commandProvider
             logger.info("Registered handler ${handler::class.simpleName} to handle command ${commandType.simpleName}")
         }
+    }
+
+    private fun registerEventHandler(name: String) {
+        logger.debug("Register EventHandler with name $name")
     }
 
     companion object {

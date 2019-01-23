@@ -1,16 +1,16 @@
 package io.jkratz.mediatr.spring
 
-import io.jkratz.mediatr.core.CommandHandler
+import io.jkratz.mediatr.core.EventHandler
 import org.springframework.context.ApplicationContext
 import kotlin.reflect.KClass
 
 /**
  *
  */
-internal class CommandProvider<T> (
+internal class EventProvider<T>(
     private val applicationContext: ApplicationContext,
     private val type: KClass<T>
-) where T: CommandHandler<*, *> {
+) where T: EventHandler<*> {
 
     fun get(): T {
         return applicationContext.getBean(type.java)

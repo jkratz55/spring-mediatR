@@ -19,3 +19,8 @@ class CommandHandlerException: RuntimeException {
 
     constructor(message: String?, throwable: Throwable): super(message, throwable)
 }
+
+/**
+ *
+ */
+class NoEventHandlersException(message: String?): RuntimeException(message)
