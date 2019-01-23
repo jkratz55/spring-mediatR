@@ -20,7 +20,11 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 
 /**
+ * API for submitting commands and events to the mediator to be routed to the
+ * proper handler.
  *
+ * @author Joseph Kratz
+ * @since 1.0
  */
 interface MediatR {
 

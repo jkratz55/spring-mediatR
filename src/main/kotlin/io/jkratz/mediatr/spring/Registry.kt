@@ -22,6 +22,7 @@ import io.jkratz.mediatr.core.Event
 import io.jkratz.mediatr.core.EventHandler
 import io.jkratz.mediatr.core.exception.MultipleCommandHandlerException
 import io.jkratz.mediatr.core.exception.NoCommandHandlerException
+import io.jkratz.mediatr.core.exception.NoEventHandlersException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
@@ -35,7 +36,7 @@ import org.springframework.core.GenericTypeResolver
 internal class Registry(val applicationContext: ApplicationContext) {
 
     private val commandRegistry: MutableMap<Class<out Command<*>>, CommandProvider<*>> = HashMap()
-    private val eventRegistry: MutableMap<Class<out Event>, MutableList<EventProvider<*>>> = HashMap()
+    private val eventRegistry: MutableMap<Class<out Event>, MutableSet<EventProvider<*>>> = HashMap()
 
     init {
         applicationContext.getBeanNamesForType(CommandHandler::class.java)
@@ -46,9 +47,20 @@ internal class Registry(val applicationContext: ApplicationContext) {
     }
 
     fun <C : Command<R>,R> get(commandClass: Class<out C>): CommandHandler<C,R> {
-        commandRegistry[commandClass]?.let {provider ->
+        commandRegistry[commandClass]?.let { provider ->
             return provider.get() as CommandHandler<C, R>
-        } ?: throw throw NoCommandHandlerException("No CommandHandler is registered to handle command of type ${commandClass.canonicalName}")
+        } ?: throw NoCommandHandlerException("No CommandHandler is registered to handle command of type ${commandClass.canonicalName}")
+    }
+
+    fun <E: Event> get(eventClass: Class<out E>): Set<EventHandler<E>> {
+        val handlers = mutableSetOf<EventHandler<E>>()
+        eventRegistry[eventClass]?.let { providers ->
+            for (provider in providers) {
+                val handler = provider.get() as EventHandler<E>
+                handlers.add(handler)
+            }
+        } ?: throw NoEventHandlersException("No EventHandlers are registered to handle event of type ${eventClass.canonicalName}")
+        return handlers
     }
 
     private fun registerCommandHandler(name: String) {
@@ -67,9 +79,17 @@ internal class Registry(val applicationContext: ApplicationContext) {
     }
 
     private fun registerEventHandler(name: String) {
-        logger.debug("Register EventHandler with name $name")
+        logger.debug("Registering EventHandler with name $name")
         val eventHandler: EventHandler<*> = applicationContext.getBean(name) as EventHandler<*>
         val generics = GenericTypeResolver.resolveTypeArguments(eventHandler::class.java, EventHandler::class.java)
+        generics?.let {
+            val eventType = it[0] as Class<out Event>
+            val eventProvider = EventProvider(applicationContext, eventHandler::class)
+            eventRegistry[eventType]?.add(eventProvider) ?: kotlin.run {
+                eventRegistry[eventType] = mutableSetOf(eventProvider)
+            }
+            logger.info("Register EventHandler ${eventHandler::class.simpleName} to handle Event ${eventType.simpleName}")
+        }
     }
 
     companion object {

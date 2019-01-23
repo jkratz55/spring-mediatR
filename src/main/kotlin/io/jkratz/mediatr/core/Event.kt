@@ -17,12 +17,18 @@
 package io.jkratz.mediatr.core
 
 /**
+ * Marker interface for an event
  *
+ * @author Joseph Kratz
+ * @since 1.0
  */
 interface Event
 
 /**
+ * Handler for a specific event
  *
+ * @author Joseph Kratz
+ * @since 1.0
  */
 interface EventHandler<in TEvent> where TEvent: Event  {
 

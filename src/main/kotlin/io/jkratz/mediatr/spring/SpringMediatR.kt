@@ -50,10 +50,14 @@ class SpringMediatR @Autowired constructor(applicationContext: ApplicationContex
     }
 
     override fun emit(@Valid event: Event) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val eventHandlers = registry.get(event::class.java)
+        eventHandlers.forEach { handler -> handler.handle(event) }
     }
 
     override fun emitAsync(@Valid event: Event, executor: Executor?): CompletableFuture<Void> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val eventHandlers = registry.get(event::class.java)
+        return CompletableFuture.runAsync {
+            eventHandlers.forEach { handler -> handler.handle(event) }
+        }
     }
 }
