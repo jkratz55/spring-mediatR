@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,22 @@
 
 package io.jkratz.mediatr.spring
 
-import io.jkratz.mediatr.core.CommandHandler
+import io.jkratz.mediatr.core.EventHandler
 import org.springframework.context.ApplicationContext
 import kotlin.reflect.KClass
 
 /**
+ * A wrapper around an EventHandler
  *
+ * @author Joseph Kratz
+ * @since 1.0
+ * @property applicationContext ApplicationContext from Spring used to retrieve beans
+ * @property type Tyoe of EventHandler
  */
-internal class CommandProvider<T> (
+internal class EventHandlerProvider<T>(
     private val applicationContext: ApplicationContext,
     private val type: KClass<T>
-) where T: CommandHandler<*, *> {
+) where T: EventHandler<*> {
 
     fun get(): T {
         return applicationContext.getBean(type.java)

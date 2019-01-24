@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,35 +17,37 @@
 package io.jkratz.mediatr.spring
 
 import io.jkratz.mediatr.core.*
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
-import io.jkratz.mediatr.core.Command
+import io.jkratz.mediatr.core.Request
 import java.util.function.Supplier
 import javax.validation.Valid
 
 /**
+ * Spring specific implementation of [MediatR]
  *
+ * @author Joseph Kratz
+ * @since 1.0
  */
-class SpringMediatR @Autowired constructor(applicationContext: ApplicationContext): MediatR {
+class SpringMediatR constructor(applicationContext: ApplicationContext): MediatR {
 
     private val registry: Registry = Registry(applicationContext)
 
-    override fun <TCommand: Command<TResponse>, TResponse> execute(@Valid command: TCommand): TResponse {
-        val commandHandler = registry.get(command::class.java)
-        return commandHandler.handle(command)
+    override fun <TRequest: Request<TResponse>, TResponse> dispatch(@Valid request: TRequest): TResponse {
+        val commandHandler = registry.get(request::class.java)
+        return commandHandler.handle(request)
     }
 
-    override fun <TCommand : Command<TResponse>, TResponse> executeAsync(@Valid command: TCommand, executor: Executor?): CompletableFuture<TResponse> {
-        val commandHandler = registry.get(command::class.java)
+    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(@Valid request: TRequest, executor: Executor?): CompletableFuture<TResponse> {
+        val commandHandler = registry.get(request::class.java)
         executor?.let { exec ->
             return CompletableFuture.supplyAsync(Supplier {
-                commandHandler.handle(command)
+                commandHandler.handle(request)
             }, exec)
         } ?:
         return CompletableFuture.supplyAsync {
-            commandHandler.handle(command)
+            commandHandler.handle(request)
         }
     }
 

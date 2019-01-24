@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,31 @@
 
 package io.jkratz.mediatr.core.decorator
 
-import io.jkratz.mediatr.core.Command
+import io.jkratz.mediatr.core.Request
 import io.jkratz.mediatr.core.Event
 import io.jkratz.mediatr.core.MediatR
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
-import kotlin.system.measureTimeMillis
 
 class LoggingMediatR(private val decorated: MediatR): MediatR {
 
-    override fun <TCommand : Command<TResponse>, TResponse> execute(command: TCommand): TResponse {
+    override fun <TRequest : Request<TResponse>, TResponse> dispatch(request: TRequest): TResponse {
 //        var result: TResponse
 //        val time = measureTimeMillis {
-//            result = decorated.execute(command)
+//            result = decorated.dispatch(request)
 //        }
-//        logger.info("Executed ${command::class.simpleName} in $time ms")
+//        logger.info("Executed ${request::class.simpleName} in $time ms")
 //        return result
 
-        return decorated.execute(command)
+        return decorated.dispatch(request)
     }
 
-    override fun <TCommand : Command<TResponse>, TResponse> executeAsync(
-        command: TCommand,
+    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(
+        request: TRequest,
         executor: Executor?
     ): CompletableFuture<TResponse> {
-        return decorated.executeAsync(command, executor)
+        return decorated.dispatchAsync(request, executor)
     }
 
     override fun emit(event: Event) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,22 @@
 
 package io.jkratz.mediatr.spring
 
-import io.jkratz.mediatr.core.EventHandler
+import io.jkratz.mediatr.core.RequestHandler
 import org.springframework.context.ApplicationContext
 import kotlin.reflect.KClass
 
 /**
+ * A wrapper around a RequestHandler
  *
+ * @author Joseph Kratz
+ * @since 1.0
+ * @property applicationContext ApplicationContext from Spring used to retrieve beans
+ * @property type Tyoe of RequestHandler
  */
-internal class EventProvider<T>(
+internal class RequestHandlerProvider<T> (
     private val applicationContext: ApplicationContext,
     private val type: KClass<T>
-) where T: EventHandler<*> {
+) where T: RequestHandler<*, *> {
 
     fun get(): T {
         return applicationContext.getBean(type.java)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,26 @@
 package io.jkratz.mediatr.core.exception
 
 /**
+ * Exception thrown when there is not a [RequestHandler] available for a [Request]
  *
+ * @author Joseph Kratz
+ * @since 1.0
  */
-class NoCommandHandlerException(message: String?): RuntimeException(message)
+class NoRequestHandlerException(message: String?): RuntimeException(message)
 
 /**
+ * Exception thrown when there is an attempt to register a [RequestHandler] for a
+ * [Request] that already has a [RequestHandler] registered.
  *
+ * @author Joseph Kratz
+ * @since 1.0
  */
-class MultipleCommandHandlerException(message: String?): RuntimeException(message)
+class MultipleRequestHandlersException(message: String?): RuntimeException(message)
 
 /**
+ * Exception thrown when there are no [EventHandler]s available for an [Event]
  *
- */
-class CommandHandlerException: RuntimeException {
-
-    constructor(message: String?): super(message)
-
-    constructor(message: String?, throwable: Throwable): super(message, throwable)
-}
-
-/**
- *
+ * @author Joseph Kratz
+ * @since 1.0
  */
 class NoEventHandlersException(message: String?): RuntimeException(message)

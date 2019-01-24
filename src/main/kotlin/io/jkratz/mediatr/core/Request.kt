@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,29 @@
 package io.jkratz.mediatr.core
 
 /**
- * Marker interface for a command
+ * Marker interface for a request
  *
  * @author Joseph Kratz
  * @since 1.0
  * @param <TResponse> type of the return value
  */
-interface Command<out TResponse>
+interface Request<out TResponse>
 
 /**
- * A handler for a command
+ * A handler for a request
  *
  * @author Joseph Kratz
  * @since 1.0
- * @param <TCommand> the type of command to be handled
+ * @param <TTRequest> the type of TRequest to be handled
  * @param <TResponse> the type of the response
  */
-interface CommandHandler<in TCommand, TResponse> where TCommand: Command<TResponse> {
+interface RequestHandler<in TRequest, TResponse> where TRequest: Request<TResponse> {
 
     /**
-     * Handles the command
+     * Handles the request
      *
-     * @param command command to handle
-     * @return the response of the command
+     * @param request request to handle
+     * @return the response of the request
      */
-    fun handle(command: TCommand): TResponse
+    fun handle(request: TRequest): TResponse
 }

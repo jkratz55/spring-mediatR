@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 
 /**
- * API for submitting commands and events to the mediator to be routed to the
- * proper handler.
+ * Defines a mediator to encapsulate dispatching and publishing interaction patterns.
  *
  * @author Joseph Kratz
  * @since 1.0
@@ -29,14 +28,23 @@ import java.util.concurrent.Executor
 interface MediatR {
 
     /**
-     * Executes a command
+     * Dispatches a request to a single RequestHandler
+     *
+     * @param request The request to be executed
+     * @return
      */
-    fun <TCommand: Command<TResponse>, TResponse> execute(command: TCommand): TResponse
+    fun <TRequest: Request<TResponse>, TResponse> dispatch(request: TRequest): TResponse
 
     /**
-     * Executes a command asynchronously
+     * Dispatches a request to a single RequestHandler. The RequestHandler executes on another Thread
+     * asynchronously and returns a [CompletableFuture]. If an [Executor] is provided it will be used
+     * to execute the RequestHandler, otherwise the default ForkJoinPool will be used.
+     *
+     * @param request The request to be executed
+     * @param executor The executor to execute the request
+     * @return
      */
-    fun <TCommand: Command<TResponse>, TResponse> executeAsync(command: TCommand, executor: Executor? = null): CompletableFuture<TResponse>
+    fun <TRequest: Request<TResponse>, TResponse> dispatchAsync(request: TRequest, executor: Executor? = null): CompletableFuture<TResponse>
 
     /**
      *
