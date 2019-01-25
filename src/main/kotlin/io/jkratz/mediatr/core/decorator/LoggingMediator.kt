@@ -25,64 +25,64 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import kotlin.system.measureTimeMillis
 
-class LoggingMediator(private val decorated: Mediator): Mediator {
-
-    override fun <TRequest : Request<TResponse>, TResponse> dispatch(request: TRequest): TResponse {
-        var result: TResponse? = null
-        val time = measureTimeMillis {
-            result = decorated.dispatch(request)
-        }
-        logger.info("Executed ${request::class.simpleName} in $time ms")
-        return result!!
-    }
-
-    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(request: TRequest): CompletableFuture<TResponse> {
-        var result:CompletableFuture<TResponse> = CompletableFuture()
-        val time = measureTimeMillis {
-            result = decorated.dispatchAsync(request)
-        }
-        logger.info("Executed ${request::class.simpleName} in $time ms")
-        return result
-    }
-
-    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(
-        request: TRequest,
-        executor: Executor
-    ): CompletableFuture<TResponse> {
-        var result:CompletableFuture<TResponse> = CompletableFuture()
-        val time = measureTimeMillis {
-            result = decorated.dispatchAsync(request, executor)
-        }
-        logger.info("Executed ${request::class.simpleName} in $time ms")
-        return result
-    }
-
-    override fun emit(event: Event) {
-        val time = measureTimeMillis {
-            decorated.emit(event)
-        }
-        logger.info("Executed ${event::class.simpleName} in $time ms")
-    }
-
-    override fun emitAsync(event: Event): CompletableFuture<Void> {
-        var result: CompletableFuture<Void> = CompletableFuture()
-        val time = measureTimeMillis {
-            result = decorated.emitAsync(event)
-        }
-        logger.info("Executed ${event::class.simpleName} in $time ms")
-        return result
-    }
-
-    override fun emitAsync(event: Event, executor: Executor): CompletableFuture<Void> {
-        var result: CompletableFuture<Void> = CompletableFuture()
-        val time = measureTimeMillis {
-            result = decorated.emitAsync(event,executor)
-        }
-        logger.info("Executed ${event::class.simpleName} in $time ms")
-        return result
-    }
-
-    companion object {
-        val logger: Logger = LoggerFactory.getLogger(LoggingMediator::class.java)
-    }
-}
+//class LoggingMediator(private val decorated: Mediator): Mediator {
+//
+//    override fun <TRequest : Request<TResponse>, TResponse> dispatch(request: TRequest): TResponse {
+//        var result: TResponse? = null
+//        val time = measureTimeMillis {
+//            result = decorated.dispatch(request)
+//        }
+//        logger.info("Executed ${request::class.simpleName} in $time ms")
+//        return result!!
+//    }
+//
+//    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(request: TRequest): CompletableFuture<TResponse> {
+//        var result:CompletableFuture<TResponse> = CompletableFuture()
+//        val time = measureTimeMillis {
+//            result = decorated.dispatchAsync(request)
+//        }
+//        logger.info("Executed ${request::class.simpleName} in $time ms")
+//        return result
+//    }
+//
+//    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(
+//        request: TRequest,
+//        executor: Executor
+//    ): CompletableFuture<TResponse> {
+//        var result:CompletableFuture<TResponse> = CompletableFuture()
+//        val time = measureTimeMillis {
+//            result = decorated.dispatchAsync(request, executor)
+//        }
+//        logger.info("Executed ${request::class.simpleName} in $time ms")
+//        return result
+//    }
+//
+//    override fun emit(event: Event) {
+//        val time = measureTimeMillis {
+//            decorated.emit(event)
+//        }
+//        logger.info("Executed ${event::class.simpleName} in $time ms")
+//    }
+//
+//    override fun emitAsync(event: Event): CompletableFuture<Void> {
+//        var result: CompletableFuture<Void> = CompletableFuture()
+//        val time = measureTimeMillis {
+//            result = decorated.emitAsync(event)
+//        }
+//        logger.info("Executed ${event::class.simpleName} in $time ms")
+//        return result
+//    }
+//
+//    override fun emitAsync(event: Event, executor: Executor): CompletableFuture<Void> {
+//        var result: CompletableFuture<Void> = CompletableFuture()
+//        val time = measureTimeMillis {
+//            result = decorated.emitAsync(event,executor)
+//        }
+//        logger.info("Executed ${event::class.simpleName} in $time ms")
+//        return result
+//    }
+//
+//    companion object {
+//        val logger: Logger = LoggerFactory.getLogger(LoggingMediator::class.java)
+//    }
+//}

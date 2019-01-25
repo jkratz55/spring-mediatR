@@ -72,7 +72,7 @@ interface Mediator {
      * @param event The event to send
      * @return
      */
-    fun emitAsync(event: Event): CompletableFuture<Void>
+    fun emitAsync(event: Event): CompletableFuture<Unit>
 
     /**
      * Sends the event to all registered handlers for the particular event using a separate Thread.
@@ -83,5 +83,11 @@ interface Mediator {
      * @param executor The executor to execute the request
      * @return
      */
-    fun emitAsync(event: Event, executor: Executor): CompletableFuture<Void>
+    fun emitAsync(event: Event, executor: Executor): CompletableFuture<Unit>
+
+    fun dispatch(command: Command)
+
+    fun dispatchAsync(command: Command): CompletableFuture<Unit>
+
+    fun dispatchAsync(command: Command, executor: Executor): CompletableFuture<Unit>
 }

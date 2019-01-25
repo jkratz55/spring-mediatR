@@ -16,13 +16,8 @@
 
 package io.jkratz.mediatr.spring
 
-import io.jkratz.mediatr.core.Request
-import io.jkratz.mediatr.core.RequestHandler
-import io.jkratz.mediatr.core.Event
-import io.jkratz.mediatr.core.EventHandler
-import io.jkratz.mediatr.core.exception.MultipleRequestHandlersException
-import io.jkratz.mediatr.core.exception.NoRequestHandlerException
-import io.jkratz.mediatr.core.exception.NoEventHandlersException
+import io.jkratz.mediatr.core.*
+import io.jkratz.mediatr.core.exception.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
@@ -43,6 +38,7 @@ internal class Registry(private val applicationContext: ApplicationContext) {
 
     private val requestRegistry: MutableMap<Class<out Request<*>>, RequestHandlerProvider<*>> = HashMap()
     private val eventRegistry: MutableMap<Class<out Event>, MutableSet<EventHandlerProvider<*>>> = HashMap()
+    private val commandRegistry: MutableMap<Class<out Command>, CommandHandlerProvider<*>> = HashMap()
 
     init {
         applicationContext.getBeanNamesForType(RequestHandler::class.java)
@@ -50,6 +46,9 @@ internal class Registry(private val applicationContext: ApplicationContext) {
 
         applicationContext.getBeanNamesForType(EventHandler::class.java)
             .forEach { registerEventHandler(it) }
+
+        applicationContext.getBeanNamesForType(CommandHandler::class.java)
+            .forEach { registerCommandHandler(it) }
     }
 
     /**
@@ -86,6 +85,20 @@ internal class Registry(private val applicationContext: ApplicationContext) {
     }
 
     /**
+     * Retrieves a CommandHandler for the provided type. If no CommandHandler
+     * is registered for the Command type [NoCommandHandlerException] will be thrown.
+     *
+     * @param commandClass The type of the command
+     * @return The CommandHandler for the command
+     * @throws NoCommandHandlerException When there isn't a CommandHandler available
+     */
+    fun <C: Command> get(commandClass: Class<out C>): CommandHandler<C> {
+        commandRegistry[commandClass]?.let { provider ->
+            return provider.get() as CommandHandler<C>
+        } ?: throw NoCommandHandlerException("No CommandHandler is registered to handle request of type ${commandClass.canonicalName}")
+    }
+
+    /**
      * Registers a RequestHandler from the Spring context by name
      *
      * @param name Name of the bean to register as a CommandHandler
@@ -97,7 +110,7 @@ internal class Registry(private val applicationContext: ApplicationContext) {
         generics?.let {
             val requestType =  it[0] as Class<out Request<*>>
             if (requestRegistry.contains(requestType)) {
-                throw MultipleRequestHandlersException("${requestType.canonicalName} already has a registered handler. Each request must have a single request handler")
+                throw DuplicateRequestHandlerRegistrationException("${requestType.canonicalName} already has a registered handler. Each request must have a single request handler")
             }
             val requestProvider = RequestHandlerProvider(applicationContext, handler::class)
             requestRegistry[requestType] = requestProvider
@@ -121,6 +134,26 @@ internal class Registry(private val applicationContext: ApplicationContext) {
                 eventRegistry[eventType] = mutableSetOf(eventProvider)
             }
             logger.info("Register EventHandler ${eventHandler::class.simpleName} to handle Event ${eventType.simpleName}")
+        }
+    }
+
+    /**
+     * Registers a CommandHandler from the Spring context by name
+     *
+     * @param name Name of the bean to register as a CommandHandler
+     */
+    private fun registerCommandHandler(name: String) {
+        logger.debug("Registering CommandHandler with name $name")
+        val commandHandler: CommandHandler<*> = applicationContext.getBean(name) as CommandHandler<*>
+        val generics = GenericTypeResolver.resolveTypeArguments(commandHandler::class.java, CommandHandler::class.java)
+        generics?.let {
+            val commandType = it[0] as Class<out Command>
+            if (commandRegistry.containsKey(commandType)) {
+                throw DuplicateCommandHandlerRegistrationException("${commandType.canonicalName} already has a registered handler. Each command must have a single command handler")
+            }
+            val commandHandlerProvider = CommandHandlerProvider(applicationContext, commandHandler::class)
+            commandRegistry[commandType] = commandHandlerProvider
+            logger.info("Registered CommandHandler ${commandHandler::class.simpleName} to handle Command ${commandType.simpleName}")
         }
     }
 
