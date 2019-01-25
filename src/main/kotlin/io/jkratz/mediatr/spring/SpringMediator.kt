@@ -25,12 +25,12 @@ import java.util.function.Supplier
 import javax.validation.Valid
 
 /**
- * Spring specific implementation of [MediatR]
+ * Spring specific implementation of [Mediator]
  *
  * @author Joseph Kratz
  * @since 1.0
  */
-class SpringMediatR constructor(applicationContext: ApplicationContext): MediatR {
+class SpringMediator constructor(applicationContext: ApplicationContext): Mediator {
 
     private val registry: Registry = Registry(applicationContext)
 
@@ -39,16 +39,18 @@ class SpringMediatR constructor(applicationContext: ApplicationContext): MediatR
         return commandHandler.handle(request)
     }
 
-    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(@Valid request: TRequest, executor: Executor?): CompletableFuture<TResponse> {
+    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(request: TRequest): CompletableFuture<TResponse> {
         val commandHandler = registry.get(request::class.java)
-        executor?.let { exec ->
-            return CompletableFuture.supplyAsync(Supplier {
-                commandHandler.handle(request)
-            }, exec)
-        } ?:
         return CompletableFuture.supplyAsync {
             commandHandler.handle(request)
         }
+    }
+
+    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(@Valid request: TRequest, executor: Executor): CompletableFuture<TResponse> {
+        val commandHandler = registry.get(request::class.java)
+        return CompletableFuture.supplyAsync(Supplier {
+            commandHandler.handle(request)
+        }, executor)
     }
 
     override fun emit(@Valid event: Event) {
@@ -56,10 +58,17 @@ class SpringMediatR constructor(applicationContext: ApplicationContext): MediatR
         eventHandlers.forEach { handler -> handler.handle(event) }
     }
 
-    override fun emitAsync(@Valid event: Event, executor: Executor?): CompletableFuture<Void> {
+    override fun emitAsync(event: Event): CompletableFuture<Void> {
         val eventHandlers = registry.get(event::class.java)
         return CompletableFuture.runAsync {
             eventHandlers.forEach { handler -> handler.handle(event) }
         }
+    }
+
+    override fun emitAsync(@Valid event: Event, executor: Executor): CompletableFuture<Void> {
+        val eventHandlers = registry.get(event::class.java)
+        return CompletableFuture.runAsync({
+            eventHandlers.forEach { handler -> handler.handle(event) }
+        }, executor::execute)
     }
 }
