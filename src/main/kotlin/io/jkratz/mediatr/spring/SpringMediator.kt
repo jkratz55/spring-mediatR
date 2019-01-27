@@ -18,14 +18,20 @@ package io.jkratz.mediatr.spring
 
 import io.jkratz.mediatr.core.*
 import org.springframework.context.ApplicationContext
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executor
 import io.jkratz.mediatr.core.Request
-import java.util.function.Supplier
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import java.util.concurrent.*
 import javax.validation.Valid
 
 /**
- * Spring specific implementation of [Mediator]
+ * Implementation of Mediator that is specific to the Spring Framework. This class requires it be
+ * instantiated with the [ApplicationContext] containing the beans for all the handlers. The
+ * [ApplicationContext] is used to retrieve all the beans that implement [CommandHandler],
+ * [EventHandler], and [RequestHandler]. Optionally this class can be instantiated with a
+ * [Executor]. If one if not provided a FixedThreadPool will be used with a thread count
+ * equal to the count of processor available. The [Executor] is only used on the async variants
+ * of the dispatch and emit events.
  *
  * @author Joseph Kratz
  * @since 1.0
@@ -33,42 +39,59 @@ import javax.validation.Valid
 class SpringMediator constructor(applicationContext: ApplicationContext): Mediator {
 
     private val registry: Registry = Registry(applicationContext)
+    private var executor: Executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), MediatorThreadFactory())
+
+    constructor(applicationContext: ApplicationContext, executor: Executor) : this(applicationContext) {
+        this.executor = executor
+        logger.info("${executor::class.java.simpleName} will be used for asynchronous operations instead of the default Executor")
+    }
 
     override fun <TRequest: Request<TResponse>, TResponse> dispatch(@Valid request: TRequest): TResponse {
-        val commandHandler = registry.get(request::class.java)
-        return commandHandler.handle(request)
+        val handler = registry.get(request::class.java)
+        logger.debug("Dispatching ${request::class.simpleName} to handler ${handler::class.simpleName}")
+        return handler.handle(request)
     }
 
-    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(request: TRequest): CompletableFuture<TResponse> {
-        val commandHandler = registry.get(request::class.java)
-        return CompletableFuture.supplyAsync {
-            commandHandler.handle(request)
-        }
-    }
-
-    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(@Valid request: TRequest, executor: Executor): CompletableFuture<TResponse> {
-        val commandHandler = registry.get(request::class.java)
-        return CompletableFuture.supplyAsync(Supplier {
-            commandHandler.handle(request)
-        }, executor)
+    override fun <TRequest : Request<TResponse>, TResponse> dispatchAsync(@Valid request: TRequest): CompletableFuture<TResponse> {
+        return CompletableFuture.supplyAsync({
+            val handler = registry.get(request::class.java)
+            logger.debug("Dispatching ${request::class.simpleName} to handler ${handler::class.simpleName}")
+            handler.handle(request)
+        }, executor::execute)
     }
 
     override fun emit(@Valid event: Event) {
         val eventHandlers = registry.get(event::class.java)
-        eventHandlers.forEach { handler -> handler.handle(event) }
-    }
-
-    override fun emitAsync(event: Event): CompletableFuture<Void> {
-        val eventHandlers = registry.get(event::class.java)
-        return CompletableFuture.runAsync {
-            eventHandlers.forEach { handler -> handler.handle(event) }
+        eventHandlers.forEach { handler ->
+            logger.debug("Dispatching ${event::class.simpleName} to handler ${handler::class.simpleName}")
+            handler.handle(event)
         }
     }
 
-    override fun emitAsync(@Valid event: Event, executor: Executor): CompletableFuture<Void> {
-        val eventHandlers = registry.get(event::class.java)
+    override fun emitAsync(@Valid event: Event): CompletableFuture<Void> {
         return CompletableFuture.runAsync({
-            eventHandlers.forEach { handler -> handler.handle(event) }
+            val eventHandlers = registry.get(event::class.java)
+            eventHandlers.forEach { handler ->
+                logger.debug("Dispatching ${event::class.simpleName} to handler ${handler::class.simpleName}")
+                handler.handle(event) }
         }, executor::execute)
+    }
+
+    override fun dispatch(@Valid command: Command) {
+        val handler = registry.get(command::class.java)
+        logger.debug("Dispatching ${command::class.simpleName} to handler ${handler::class.simpleName}")
+        handler.handle(command)
+    }
+
+    override fun dispatchAsync(@Valid command: Command): CompletableFuture<Void> {
+        return CompletableFuture.runAsync({
+            val handler = registry.get(command::class.java)
+            logger.debug("Dispatching ${command::class.simpleName} to handler ${handler::class.simpleName}")
+            handler.handle(command)
+        }, executor::execute)
+    }
+
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(SpringMediator::class.java)
     }
 }

@@ -16,21 +16,18 @@
 
 package io.jkratz.mediatr.core
 
+import java.util.concurrent.ThreadFactory
+
 /**
- * Marker interface for a Command
+ * Custom implementation of [ThreadFactory] to provide custom naming
+ * of the threads used by the default [Executor] for asynchronous processing.
  *
  * @author Joseph Kratz
  * @since 1.0
  */
-interface Command
+class MediatorThreadFactory: ThreadFactory {
 
-/**
- * A handler for a given Command
- *
- * @author Joseph Kratz
- * @since 1.0
- */
-interface CommandHandler<TCommand> where TCommand: Command {
-
-    fun handle(command: Command)
+    override fun newThread(r: Runnable?): Thread {
+        return Thread(r, "Mediator")
+    }
 }
