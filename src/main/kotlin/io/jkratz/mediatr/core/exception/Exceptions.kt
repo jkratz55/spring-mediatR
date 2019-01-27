@@ -31,7 +31,7 @@ class NoRequestHandlerException(message: String?): RuntimeException(message)
  * @author Joseph Kratz
  * @since 1.0
  */
-class MultipleRequestHandlersException(message: String?): RuntimeException(message)
+class DuplicateRequestHandlerRegistrationException(message: String?): RuntimeException(message)
 
 /**
  * Exception thrown when there are no [EventHandler]s available for an [Event]
@@ -40,3 +40,13 @@ class MultipleRequestHandlersException(message: String?): RuntimeException(messa
  * @since 1.0
  */
 class NoEventHandlersException(message: String?): RuntimeException(message)
+
+/**
+ *
+ */
+class NoCommandHandlerException(message: String?): RuntimeException(message)
+
+/**
+ *
+ */
+class DuplicateCommandHandlerRegistrationException(message: String?): RuntimeException(message)

@@ -17,13 +17,10 @@
 package io.jkratz.mediatr.core
 
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executor
 
 /**
  * Defines a mediator to encapsulate dispatching and publishing interaction patterns.
  *
- * Note: While written in Kotlin because Java does not have default parameters additional
- * overloads were added for better interoperability.
  *
  * @author Joseph Kratz
  * @since 1.0
@@ -31,7 +28,7 @@ import java.util.concurrent.Executor
 interface Mediator {
 
     /**
-     * Dispatches a request to a single RequestHandler
+     * Dispatches a [Request] to a single [RequestHandler] synchronously
      *
      * @param request The request to be executed
      * @return
@@ -39,35 +36,23 @@ interface Mediator {
     fun <TRequest: Request<TResponse>, TResponse> dispatch(request: TRequest): TResponse
 
     /**
-     * Dispatches a request to a single RequestHandler which will execute on a separate Thread,
-     * using the default ForkJoinPool
+     * Dispatches a [Request] to a single [RequestHandler] to execute asynchronously on another thread
      *
      * @param request The request to be executed
      * @return
      */
     fun <TRequest: Request<TResponse>, TResponse> dispatchAsync(request: TRequest): CompletableFuture<TResponse>
 
-    /**
-     * Dispatches a request to a single RequestHandler which will execute on a separate Thread,
-     * using the provided [Executor]. If pass NULL for the executor the default ForkJoinPool will
-     * be used.
-     *
-     * @param request The request to be executed
-     * @param executor The executor to execute the request
-     * @return
-     */
-    fun <TRequest: Request<TResponse>, TResponse> dispatchAsync(request: TRequest, executor: Executor): CompletableFuture<TResponse>
 
     /**
-     * Sends the event to all registered handlers for the particular event.
+     * Sends the event to all registered [EventHandler]s for the particular event synchronously.
      *
      * @param event The event to send
      */
     fun emit(event: Event)
 
     /**
-     * Sends the event to all registered handlers for the particular event using a separate Thread.
-     * The default ForkJoinPool will be used.
+     * Sends the event to all registered [EventHandler]s for the particular event asynchronously on another thread
      *
      * @param event The event to send
      * @return
@@ -75,13 +60,15 @@ interface Mediator {
     fun emitAsync(event: Event): CompletableFuture<Void>
 
     /**
-     * Sends the event to all registered handlers for the particular event using a separate Thread.
-     * The executor is used to execute the [EventHandler], the default ForkJoinPool will be used
-     * if executor is NULL.
+     * Dispatches a [Command] to a single [CommandHandler] synchronously
      *
-     * @param event The event to send
-     * @param executor The executor to execute the request
-     * @return
+     * @param command Command to dispatch for execution
      */
-    fun emitAsync(event: Event, executor: Executor): CompletableFuture<Void>
+    fun dispatch(command: Command)
+
+    /**
+     * Dispatches a [Command] to a single [CommandHandler] to execute asynchronously on another thread
+     */
+    fun dispatchAsync(command: Command): CompletableFuture<Void>
+
 }
