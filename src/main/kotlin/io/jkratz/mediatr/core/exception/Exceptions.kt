@@ -42,11 +42,18 @@ class DuplicateRequestHandlerRegistrationException(message: String?): RuntimeExc
 class NoEventHandlersException(message: String?): RuntimeException(message)
 
 /**
+ * Exception thrown when there is not a [CommandHandler] available for a [Command]
  *
+ * @author Joseph Kratz
+ * @since 1.0
  */
 class NoCommandHandlerException(message: String?): RuntimeException(message)
 
 /**
+ * Exception thrown when there is an attempt to register a [CommandHandler] for a
+ * [Command] that already has a [CommandHandler] registered.
  *
+ * @author Joseph Kratz
+ * @since 1.0
  */
 class DuplicateCommandHandlerRegistrationException(message: String?): RuntimeException(message)
