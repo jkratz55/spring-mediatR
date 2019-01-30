@@ -27,7 +27,16 @@ import java.util.concurrent.ThreadFactory
  */
 class MediatorThreadFactory: ThreadFactory {
 
+    private var counter: Int = 0
+
+    /**
+     * Creates threads with the naming scheme Mediator-X where X is the
+     * thread number
+     *
+     * Example: Mediator-1
+     */
     override fun newThread(r: Runnable?): Thread {
-        return Thread(r, "Mediator")
+        counter++
+        return Thread(r, "Mediator-$counter")
     }
 }
