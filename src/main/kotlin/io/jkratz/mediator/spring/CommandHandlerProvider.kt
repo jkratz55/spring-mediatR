@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediatr.core
+package io.jkratz.mediator.spring
+
+import io.jkratz.mediator.core.CommandHandler
+import org.springframework.context.ApplicationContext
+import kotlin.reflect.KClass
 
 /**
- * Marker interface for a Command
+ * A wrapper around a CommandHandler
  *
  * @author Joseph Kratz
  * @since 1.0
+ * @property applicationContext ApplicationContext from Spring used to retrieve beans
+ * @property type Tyoe of CommandHandler
  */
-interface Command
+internal class CommandHandlerProvider<T> (
+    private val applicationContext: ApplicationContext,
+    private val type: KClass<T>
+) where T: CommandHandler<*> {
 
-/**
- * A handler for a given Command
- *
- * @author Joseph Kratz
- * @since 1.0
- */
-interface CommandHandler<TCommand> where TCommand: Command {
-
-    fun handle(command: Command)
+    fun get(): T {
+        return applicationContext.getBean(type.java)
+    }
 }

@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediatr.spring
+package io.jkratz.mediator.core
 
-import io.jkratz.mediatr.core.EventHandler
-import org.springframework.context.ApplicationContext
-import kotlin.reflect.KClass
+import java.util.concurrent.ThreadFactory
 
 /**
- * A wrapper around an EventHandler
+ * Custom implementation of [ThreadFactory] to provide custom naming
+ * of the threads used by the default [Executor] for asynchronous processing.
  *
  * @author Joseph Kratz
  * @since 1.0
- * @property applicationContext ApplicationContext from Spring used to retrieve beans
- * @property type Tyoe of EventHandler
  */
-internal class EventHandlerProvider<T>(
-    private val applicationContext: ApplicationContext,
-    private val type: KClass<T>
-) where T: EventHandler<*> {
+class MediatorThreadFactory: ThreadFactory {
 
-    fun get(): T {
-        return applicationContext.getBean(type.java)
+    private var counter: Int = 0
+
+    /**
+     * Creates threads with the naming scheme Mediator-X where X is the
+     * thread number
+     *
+     * Example: Mediator-1
+     */
+    override fun newThread(r: Runnable?): Thread {
+        counter++
+        return Thread(r, "Mediator-$counter")
     }
 }

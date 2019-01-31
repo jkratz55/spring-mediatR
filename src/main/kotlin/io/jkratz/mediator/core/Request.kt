@@ -14,29 +14,32 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediatr.core
-
-import java.util.concurrent.ThreadFactory
+package io.jkratz.mediator.core
 
 /**
- * Custom implementation of [ThreadFactory] to provide custom naming
- * of the threads used by the default [Executor] for asynchronous processing.
+ * Marker interface for a request
  *
  * @author Joseph Kratz
  * @since 1.0
+ * @param <TResponse> type of the return value
  */
-class MediatorThreadFactory: ThreadFactory {
+interface Request<out TResponse>
 
-    private var counter: Int = 0
+/**
+ * A handler for a request
+ *
+ * @author Joseph Kratz
+ * @since 1.0
+ * @param <TTRequest> the type of TRequest to be handled
+ * @param <TResponse> the type of the response
+ */
+interface RequestHandler<in TRequest, TResponse> where TRequest: Request<TResponse> {
 
     /**
-     * Creates threads with the naming scheme Mediator-X where X is the
-     * thread number
+     * Handles the request
      *
-     * Example: Mediator-1
+     * @param request request to handle
+     * @return the response of the request
      */
-    override fun newThread(r: Runnable?): Thread {
-        counter++
-        return Thread(r, "Mediator-$counter")
-    }
+    fun handle(request: TRequest): TResponse
 }

@@ -14,32 +14,26 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediatr.core
+package io.jkratz.mediator.spring
+
+import io.jkratz.mediator.core.RequestHandler
+import org.springframework.context.ApplicationContext
+import kotlin.reflect.KClass
 
 /**
- * Marker interface for a request
+ * A wrapper around a RequestHandler
  *
  * @author Joseph Kratz
  * @since 1.0
- * @param <TResponse> type of the return value
+ * @property applicationContext ApplicationContext from Spring used to retrieve beans
+ * @property type Tyoe of RequestHandler
  */
-interface Request<out TResponse>
+internal class RequestHandlerProvider<T> (
+    private val applicationContext: ApplicationContext,
+    private val type: KClass<T>
+) where T: RequestHandler<*, *> {
 
-/**
- * A handler for a request
- *
- * @author Joseph Kratz
- * @since 1.0
- * @param <TTRequest> the type of TRequest to be handled
- * @param <TResponse> the type of the response
- */
-interface RequestHandler<in TRequest, TResponse> where TRequest: Request<TResponse> {
-
-    /**
-     * Handles the request
-     *
-     * @param request request to handle
-     * @return the response of the request
-     */
-    fun handle(request: TRequest): TResponse
+    fun get(): T {
+        return applicationContext.getBean(type.java)
+    }
 }

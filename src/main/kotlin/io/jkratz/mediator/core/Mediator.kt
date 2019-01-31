@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediatr.core
+package io.jkratz.mediator.core
 
 import java.util.concurrent.CompletableFuture
 

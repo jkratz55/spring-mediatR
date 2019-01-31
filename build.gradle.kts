@@ -27,6 +27,8 @@ dependencies {
     implementation(group = "javax.validation", name = "validation-api", version = "2.0.1.Final")
 
     testImplementation(kotlin("test-junit"))
+    testImplementation(group = "org.springframework", name = "spring-test", version = "5.1.4.RELEASE")
+    testImplementation(group = "org.mockito", name = "mockito-core", version = "2.23.4")
 }
 
 tasks.withType<KotlinCompile> {

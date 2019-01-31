@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediatr.core
+package io.jkratz.mediator.core
 
 /**
- * Marker interface for an event
+ * Marker interface for a Command
  *
  * @author Joseph Kratz
  * @since 1.0
  */
-interface Event
+interface Command
 
 /**
- * Handler for a specific event
+ * A handler for a given Command
  *
  * @author Joseph Kratz
  * @since 1.0
  */
-interface EventHandler<in TEvent> where TEvent: Event  {
+interface CommandHandler<TCommand> where TCommand: Command {
 
-    fun handle(event: Event)
+    fun handle(command: TCommand)
 }
