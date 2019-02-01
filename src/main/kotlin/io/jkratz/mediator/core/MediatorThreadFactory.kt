@@ -16,6 +16,7 @@
 
 package io.jkratz.mediator.core
 
+import java.util.concurrent.Executor
 import java.util.concurrent.ThreadFactory
 
 /**

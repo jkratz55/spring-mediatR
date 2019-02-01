@@ -21,8 +21,8 @@ import io.jkratz.mediator.core.exception.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
-import java.util.HashMap
 import org.springframework.core.GenericTypeResolver
+import java.util.*
 
 /**
  * This class is responsible for registering beans from the Spring ApplicationContext

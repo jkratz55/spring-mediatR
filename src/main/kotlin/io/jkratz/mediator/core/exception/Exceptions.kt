@@ -16,6 +16,8 @@
 
 package io.jkratz.mediator.core.exception
 
+import io.jkratz.mediator.core.*
+
 /**
  * Exception thrown when there is not a [RequestHandler] available for a [Request]
  *

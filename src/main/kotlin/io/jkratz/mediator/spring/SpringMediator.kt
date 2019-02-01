@@ -17,11 +17,12 @@
 package io.jkratz.mediator.spring
 
 import io.jkratz.mediator.core.*
-import org.springframework.context.ApplicationContext
-import io.jkratz.mediator.core.Request
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.concurrent.*
+import org.springframework.context.ApplicationContext
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 import javax.validation.Valid
 
 /**
