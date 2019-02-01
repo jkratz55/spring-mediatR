@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "io.jkratz.springmediatr"
-version = "1.0-RC2"
+version = "1.0-RELEASE"
 
 repositories {
     jcenter()
