@@ -26,7 +26,7 @@ import java.util.concurrent.Executors
 import javax.validation.Valid
 
 /**
- * Implementation of Mediator that is specific to the Spring Framework. This class requires it be
+ * Implementation of Mediator that is specific for the Spring Framework. This class requires it be
  * instantiated with the [ApplicationContext] containing the beans for all the handlers. The
  * [ApplicationContext] is used to retrieve all the beans that implement [CommandHandler],
  * [EventHandler], and [RequestHandler]. Optionally this class can be instantiated with a
@@ -36,12 +36,23 @@ import javax.validation.Valid
  *
  * @author Joseph Kratz
  * @since 1.0
+ * @constructor Creates the Spring specific implementation of MediatR using the default [Executor]
+ *              which is a fixed thread pool with the amount of threads equal to the number of
+ *              processors available.
+ * @param applicationContext Spring application context containing the beans for MediatR
  */
 class SpringMediator constructor(applicationContext: ApplicationContext): Mediator {
 
     private val registry: Registry = Registry(applicationContext)
     private var executor: Executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), MediatorThreadFactory())
 
+    /**
+     * Creates the Spring specific implementation of MediatR with a custom [Executor] for
+     * performing async operations.
+     *
+     * @param applicationContext Spring application context containing the beans for MediatR
+     * @param executor The executor to execute asynchronous operations
+     */
     constructor(applicationContext: ApplicationContext, executor: Executor) : this(applicationContext) {
         this.executor = executor
         logger.info("${executor::class.java.simpleName} will be used for asynchronous operations instead of the default Executor")
