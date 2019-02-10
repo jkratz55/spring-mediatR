@@ -41,9 +41,8 @@ import javax.validation.Valid
  *              processors available.
  * @param applicationContext Spring application context containing the beans for MediatR
  */
-class SpringMediator constructor(applicationContext: ApplicationContext): Mediator {
+class SpringMediator constructor(private val registry: Registry): Mediator {
 
-    private val registry: Registry = Registry(applicationContext)
     private var executor: Executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), MediatorThreadFactory())
 
     /**
@@ -53,7 +52,7 @@ class SpringMediator constructor(applicationContext: ApplicationContext): Mediat
      * @param applicationContext Spring application context containing the beans for MediatR
      * @param executor The executor to execute asynchronous operations
      */
-    constructor(applicationContext: ApplicationContext, executor: Executor) : this(applicationContext) {
+    constructor(registry: Registry, executor: Executor) : this(registry) {
         this.executor = executor
         logger.info("${executor::class.java.simpleName} will be used for asynchronous operations instead of the default Executor")
     }

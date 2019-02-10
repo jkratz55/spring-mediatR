@@ -34,7 +34,7 @@ import java.util.*
  * @since 1.0
  * @property applicationContext Context from the Spring container
  */
-internal class Registry(private val applicationContext: ApplicationContext) {
+class SpringRegistry(private val applicationContext: ApplicationContext): Registry {
 
     private val requestRegistry: MutableMap<Class<out Request<*>>, RequestHandlerProvider<*>> = HashMap()
     private val eventRegistry: MutableMap<Class<out Event>, MutableSet<EventHandlerProvider<*>>> = HashMap()
@@ -51,29 +51,13 @@ internal class Registry(private val applicationContext: ApplicationContext) {
             .forEach { registerCommandHandler(it) }
     }
 
-    /**
-     * Retrieves the RequestHandler for the provided type. If not RequestHandler is
-     * registered to handle the type provided [NoRequestHandlerException] will be thrown
-     *
-     * @param requestClass The type of the request
-     * @return The RequestHandler for the request
-     * @throws NoRequestHandlerException When there is not a RequestHandler available for the request
-     */
-    fun <C : Request<R>,R> get(requestClass: Class<out C>): RequestHandler<C,R> {
+    override fun <C : Request<R>,R> get(requestClass: Class<out C>): RequestHandler<C,R> {
         requestRegistry[requestClass]?.let { provider ->
             return provider.get() as RequestHandler<C, R>
         } ?: throw NoRequestHandlerException("No RequestHandler is registered to handle request of type ${requestClass.canonicalName}")
     }
 
-    /**
-     * Retrieves all the EventHandlers for the provided event type. If no EventHandlers are
-     * registered to handle the type provided [NoEventHandlersException] will be thrown.
-     *
-     * @param eventClass The type of the event
-     * @return Set of EventHandlers for the eventClass
-     * @throws NoEventHandlersException When there are no EventHandlers available
-     */
-    fun <E: Event> get(eventClass: Class<out E>): Set<EventHandler<E>> {
+    override fun <E: Event> get(eventClass: Class<out E>): Set<EventHandler<E>> {
         val handlers = mutableSetOf<EventHandler<E>>()
         eventRegistry[eventClass]?.let { providers ->
             for (provider in providers) {
@@ -84,15 +68,7 @@ internal class Registry(private val applicationContext: ApplicationContext) {
         return handlers
     }
 
-    /**
-     * Retrieves a CommandHandler for the provided type. If no CommandHandler
-     * is registered for the Command type [NoCommandHandlerException] will be thrown.
-     *
-     * @param commandClass The type of the command
-     * @return The CommandHandler for the command
-     * @throws NoCommandHandlerException When there isn't a CommandHandler available
-     */
-    fun <C: Command> get(commandClass: Class<out C>): CommandHandler<C> {
+    override fun <C: Command> get(commandClass: Class<out C>): CommandHandler<C> {
         commandRegistry[commandClass]?.let { provider ->
             return provider.get() as CommandHandler<C>
         } ?: throw NoCommandHandlerException("No CommandHandler is registered to handle request of type ${commandClass.canonicalName}")
@@ -158,6 +134,6 @@ internal class Registry(private val applicationContext: ApplicationContext) {
     }
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(Registry::class.java)
+        val logger: Logger = LoggerFactory.getLogger(SpringRegistry::class.java)
     }
 }
