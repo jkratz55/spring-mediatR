@@ -22,13 +22,16 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.core.GenericTypeResolver
-import java.util.*
+import kotlin.collections.HashMap
 
 /**
  * This class is responsible for registering beans from the Spring ApplicationContext
  * that implements the [RequestHandler] interface or [EventHandler] interface to the specific
  * [Event] or [Request] they are to handle. This class is also used to retrieve the handler
  * based on the type of the event or request.
+ *
+ * In order to address potential issues with circular dependencies the handlers are lazy registered.
+ * The registration takes place once on the first lookup of a handler.
  *
  * @author Joseph Kratz
  * @since 1.0
@@ -39,25 +42,21 @@ class SpringRegistry(private val applicationContext: ApplicationContext): Regist
     private val requestRegistry: MutableMap<Class<out Request<*>>, RequestHandlerProvider<*>> = HashMap()
     private val eventRegistry: MutableMap<Class<out Event>, MutableSet<EventHandlerProvider<*>>> = HashMap()
     private val commandRegistry: MutableMap<Class<out Command>, CommandHandlerProvider<*>> = HashMap()
-
-    init {
-        applicationContext.getBeanNamesForType(RequestHandler::class.java)
-            .forEach { registerRequestHandler(it) }
-
-        applicationContext.getBeanNamesForType(EventHandler::class.java)
-            .forEach { registerEventHandler(it) }
-
-        applicationContext.getBeanNamesForType(CommandHandler::class.java)
-            .forEach { registerCommandHandler(it) }
-    }
+    private var initialized: Boolean = false
 
     override fun <C : Request<R>,R> get(requestClass: Class<out C>): RequestHandler<C,R> {
+        if (!initialized) {
+            initializeHandlers()
+        }
         requestRegistry[requestClass]?.let { provider ->
             return provider.get() as RequestHandler<C, R>
         } ?: throw NoRequestHandlerException("No RequestHandler is registered to handle request of type ${requestClass.canonicalName}")
     }
 
     override fun <E: Event> get(eventClass: Class<out E>): Set<EventHandler<E>> {
+        if (!initialized) {
+            initializeHandlers()
+        }
         val handlers = mutableSetOf<EventHandler<E>>()
         eventRegistry[eventClass]?.let { providers ->
             for (provider in providers) {
@@ -69,9 +68,29 @@ class SpringRegistry(private val applicationContext: ApplicationContext): Regist
     }
 
     override fun <C: Command> get(commandClass: Class<out C>): CommandHandler<C> {
+        if (!initialized) {
+            initializeHandlers()
+        }
         commandRegistry[commandClass]?.let { provider ->
             return provider.get() as CommandHandler<C>
         } ?: throw NoCommandHandlerException("No CommandHandler is registered to handle request of type ${commandClass.canonicalName}")
+    }
+
+    /**
+     * Initializes all the handlers from the ApplicationContext
+     */
+    private fun initializeHandlers() {
+        synchronized(this) {
+            if (!initialized) {
+                applicationContext.getBeanNamesForType(RequestHandler::class.java)
+                    .forEach { registerRequestHandler(it) }
+                applicationContext.getBeanNamesForType(EventHandler::class.java)
+                    .forEach { registerEventHandler(it) }
+                applicationContext.getBeanNamesForType(CommandHandler::class.java)
+                    .forEach { registerCommandHandler(it) }
+                initialized = true
+            }
+        }
     }
 
     /**

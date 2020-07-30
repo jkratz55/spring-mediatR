@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
  * @author Joseph Kratz
  * @since 1.0
  * @property applicationContext ApplicationContext from Spring used to retrieve beans
- * @property type Tyoe of CommandHandler
+ * @property type Type of CommandHandler
  */
 internal class CommandHandlerProvider<T> (
     private val applicationContext: ApplicationContext,
