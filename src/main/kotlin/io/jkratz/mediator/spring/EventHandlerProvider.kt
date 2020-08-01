@@ -33,7 +33,7 @@ internal class EventHandlerProvider<T>(
     private val type: KClass<T>
 ) where T: EventHandler<*> {
 
-    fun get(): T {
-        return applicationContext.getBean(type.java)
+    internal val handler: T by lazy {
+        applicationContext.getBean(type.java)
     }
 }

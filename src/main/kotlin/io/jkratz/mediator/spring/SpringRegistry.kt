@@ -49,7 +49,7 @@ class SpringRegistry(private val applicationContext: ApplicationContext): Regist
             initializeHandlers()
         }
         requestRegistry[requestClass]?.let { provider ->
-            return provider.get() as RequestHandler<C, R>
+            return provider.handler as RequestHandler<C, R>
         } ?: throw NoRequestHandlerException("No RequestHandler is registered to handle request of type ${requestClass.canonicalName}")
     }
 
@@ -60,7 +60,7 @@ class SpringRegistry(private val applicationContext: ApplicationContext): Regist
         val handlers = mutableSetOf<EventHandler<E>>()
         eventRegistry[eventClass]?.let { providers ->
             for (provider in providers) {
-                val handler = provider.get() as EventHandler<E>
+                val handler = provider.handler as EventHandler<E>
                 handlers.add(handler)
             }
         } ?: throw NoEventHandlersException("No EventHandlers are registered to handle event of type ${eventClass.canonicalName}")
@@ -72,7 +72,7 @@ class SpringRegistry(private val applicationContext: ApplicationContext): Regist
             initializeHandlers()
         }
         commandRegistry[commandClass]?.let { provider ->
-            return provider.get() as CommandHandler<C>
+            return provider.handler as CommandHandler<C>
         } ?: throw NoCommandHandlerException("No CommandHandler is registered to handle request of type ${commandClass.canonicalName}")
     }
 
