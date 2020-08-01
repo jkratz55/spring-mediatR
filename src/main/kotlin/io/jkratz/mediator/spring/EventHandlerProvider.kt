@@ -26,14 +26,14 @@ import kotlin.reflect.KClass
  * @author Joseph Kratz
  * @since 1.0
  * @property applicationContext ApplicationContext from Spring used to retrieve beans
- * @property type Tyoe of EventHandler
+ * @property type Type of EventHandler
  */
 internal class EventHandlerProvider<T>(
     private val applicationContext: ApplicationContext,
     private val type: KClass<T>
 ) where T: EventHandler<*> {
 
-    fun get(): T {
-        return applicationContext.getBean(type.java)
+    internal val handler: T by lazy {
+        applicationContext.getBean(type.java)
     }
 }

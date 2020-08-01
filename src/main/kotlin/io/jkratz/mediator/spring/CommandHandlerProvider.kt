@@ -26,14 +26,14 @@ import kotlin.reflect.KClass
  * @author Joseph Kratz
  * @since 1.0
  * @property applicationContext ApplicationContext from Spring used to retrieve beans
- * @property type Tyoe of CommandHandler
+ * @property type Type of CommandHandler
  */
 internal class CommandHandlerProvider<T> (
     private val applicationContext: ApplicationContext,
     private val type: KClass<T>
 ) where T: CommandHandler<*> {
 
-    fun get(): T {
-        return applicationContext.getBean(type.java)
+    internal val handler: T by lazy {
+        applicationContext.getBean(type.java)
     }
 }
