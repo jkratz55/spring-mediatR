@@ -9,11 +9,11 @@ Spring MediatR is a simple library intended to help developers write cleaner mor
 * Java 8 +
 * Spring Framework 5 / Spring Boot 2*
 
-*While Spring MediatR may work on older versions of Spring I have not verified or used it on older versions of Spring.*
+*While Spring MediatR may work on older versions of Spring I have not verified nor tested it with previous versions.*
 
 ## Getting Started
 
-At this time the package is only available in jCenter but will eventually be published to Maven Central as well.
+The published artifacts for Spring MediatR are hosted on Bintray. In order to use Spring MediatR you will need to add jcenter repository.
 
 ### Gradle
 
@@ -34,12 +34,34 @@ dependencies {
     
     // Other dependencies go here
     
-    implementation 'io.jkratz.springmediatr:spring-mediatr:1.0-RELEASE'
+    implementation 'io.jkratz.springmediatr:spring-mediatr:1.1-RELEASE'
 }
 
 ```
 
-Declare the Mediator bean
+### Maven
+
+```xml
+<repositories>
+    <repository>
+      <id>jcenter</id>
+      <url>https://jcenter.bintray.com/</url>
+    </repository>
+</repositories>
+```
+
+```xml
+<dependency>
+  <groupId>io.jkratz.springmediatr</groupId>
+  <artifactId>spring-mediatr</artifactId>
+  <version>1.1-RELEASE</version>
+  <type>pom</type>
+</dependency>
+```
+
+### Setup
+
+Declare the Mediator and Registry Beans
 
 ```java
 @SpringBootApplication
@@ -53,8 +75,13 @@ public class SpringMediatrJavaSampleApplication {
 	}
 
 	@Bean
-	public Mediator mediator() {
-		return new SpringMediator(applicationContext);
+	public Registry registry() {
+		return new SpringRegistry(applicationContext);
+	}
+
+	@Bean
+	public Mediator mediator(Registry registry) {
+		return new SpringMediator(registry);
 	}
 
 	public static void main(String[] args) {
@@ -64,17 +91,11 @@ public class SpringMediatrJavaSampleApplication {
 
 ```
 
-### Maven
-
-Coming soon
-
 ### Samples
 
-There is a sample project available on GitHub you can use to reference.
+The below link is a sample project that demonstrates the basic concepts and use of Spring MediatR.
 
 [Java Sample](https://github.com/jkratz55/spring-mediatr-java-sample)
-
-[Kotlin Sample](https://github.com/jkratz55/spring-mediatr-kotlin-sample)
 
 
 ## Basics
@@ -85,11 +106,11 @@ Spring MediatR has three kinds of messages it dispatches:
 * Command - Dispatches to a single handler, does not provide a mechanism to return value
 * Event - Dispatches to one or many handlers, does not provide a mechanism to return value
 
-MediatR supports both synchronous and asynchronous dispatching. Asynchronous dispatching methods return a CompletableFuture. The asynchronous dispatching is ideal for long running operations where you don't want to hold the container thread hostage until the operation is completed. If the operation is fast it is more ideal to use the synchronous variants unless you have a particular reason not to.
+MediatR supports both synchronous and asynchronous dispatching. Asynchronous dispatching methods returns a CompletableFuture. The asynchronous dispatching is ideal for long running operations where you don't want to hold the container thread hostage until the operation is completed. If the operation is fast it may be more ideal to use the synchronous variants unless you have a particular reason not to.
 
-#### A Word About Spring's @Transactional and Async Dispathcing/Emitting
+#### A Word About Spring @Transactional and Async Dispatching/Emitting
 
-Spring does a fantasic job of making dealing with transaction incredibly easy. But out of the box @Tranasctional does not work across multiple threads. If we start a transaction from one thread and try to commit or rollback the transaction from another thread, a runtime error will be generated complaining that the Spring transaction is not active on the current thread. Though we start and end the transaction from the same thread, we cannot perform database operations belong to transaction from another thread either.
+Spring does a fantastic job of providing APIs and annotations to make handling transactions easy. However, out of the box @Tranasctional does not work across multiple threads. If we start a transaction from one thread and try to commit or rollback the transaction on another thread, a runtime error will be generated complaining that the Spring transaction is not active on the current thread. Though we start and end the transaction from the same thread, we cannot perform database operations belong to transaction from another thread either.
 
 There are ways to work around this limitation, but the following is not exhaustive. 
 
@@ -100,7 +121,7 @@ There are ways to work around this limitation, but the following is not exhausti
 
 Requests and RequestHandlers can be used for both queries and commands. There are also Commands and CommandHandlers because of the limitations of the type system on the JVM due to type erasure. Generally if you need to return a value, use a Request, otherwise use a Command.
 
-As an example a consumer might call your rest API requesting a user be created. If the created user needs to be immediatly available to the consumer you may need to return the ID of the user that was just created. This can be common when the API is expected to return a HTTP 201 status with the new resource link in the location header. In that case you would need to use a Request.
+As an example a consumer might call your rest API requesting a user be created. If the created user needs to be immediately available to the consumer you may need to return the ID of the user that was just created. This can be common when the API is expected to return a HTTP 201 status with the new resource link in the location header. In that case you would need to use a Request.
 
 ```java
 public class CreateUserRequest implements Request<Integer> {
@@ -131,13 +152,12 @@ On the other hand if you don't need to return a value you can use a command. See
 
 ### Command and CommandHandler
 
-Commands and CommandHandlers are very similar to Request and RequestHandlers. The difference being that Commands do not
-return a value. This makes the API a little more convenient for cases where you don't want a return value. With the Java/Kotlin
-type system and type erasue it is not possible to have the same interface with and without generics. Commands and CommandHandlers also resonate closer to CQRS and Event Sourcing concepts. 
+Commands and CommandHandlers are very similar to Request and RequestHandlers. The difference being that Commands do not return a value. This makes the API a little more convenient for cases where you don't want a return value. With the Java/Kotlin
+type system and type erasure it is not possible to have the same interface with and without generics. Commands and CommandHandlers also resonate closer to CQRS and Event Sourcing concepts. 
 
 ### Event and EventHandler
 
-Events work simular to Commands except an Event can be handled by multiple event handlers. Events provide a mechanism to notify components in the application that something has happen. As an example a command may come into the system to create a User which upon successfully creating the user it emits a UserCreatedEvent, and any component interested in that event can be notified.
+Events work similar to Commands except an Event can be handled by multiple event handlers. Events provide a mechanism to notify components in the application that something has happen. As an example a command may come into the system to create a User which upon successfully creating the user it emits a UserCreatedEvent, and any component interested in that event can be notified.
 
 ## Using MediatR
 
@@ -147,11 +167,9 @@ Messages and Handlers are the core of Spring MediatR. Messages carry the intent 
 
 *Important: Always remember to annotation your handler classes with @Component. If the class is not managed by Spring it will fail to be registered and likely result in an exception at runtime.*
 
-The following is an example of a command message and command handler. Requests and events are quite similar, just a use of different interaces. If you need more details please refere to the sample applications.
+The following is an example of a command message and command handler. Requests and events are quite similar, just a use of different interfaces. If you need more details please refer to the sample applications.
 
 [Java Sample](https://github.com/jkratz55/spring-mediatr-java-sample)
-
-[Kotlin Sample](https://github.com/jkratz55/spring-mediatr-kotlin-sample)
 
 #### Command & CommandHandler
 
@@ -211,7 +229,7 @@ public class CreateUserCommandHandler implements CommandHandler<CreateUserComman
 }
 ```
 
-### Dispatching and Emiting with the Mediator
+### Dispatching and Emitting with the Mediator
 
 Anywhere you want to dispatch or emit events you will need to inject an the Mediator bean. With the Mediator messages (commands, requests, or events) can be dispatched/emitted to the proper handler(s). The follow snippet below shows the Mediator being injected into a RESTful controller and then being used to dispatch messages.
 
