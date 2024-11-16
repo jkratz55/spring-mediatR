@@ -6,8 +6,8 @@ Spring MediatR is a simple library intended to help developers write cleaner mor
 
 ## Requirements
 
-* Java 8 +
-* Spring Framework 5 / Spring Boot 2*
+* Java 21 +
+* Spring Framework 6 / Spring Boot 3*
 
 *While Spring MediatR may work on older versions of Spring I have not verified nor tested it with previous versions.*
 
@@ -17,16 +17,6 @@ The published artifacts for Spring MediatR are hosted on Bintray. In order to us
 
 ### Gradle
 
-Add jcenter to the repositories
-
-
-```groovy
-repositories {
-    jcenter()
-    mavenCentral()
-}
-```
-
 Add Spring MediatR dependency
 
 ```groovy
@@ -34,7 +24,7 @@ dependencies {
     
     // Other dependencies go here
     
-    implementation 'io.jkratz.springmediatr:spring-mediatr:1.1-RELEASE'
+    implementation 'io.github.jkratz55:spring-mediatr:2.0.0-RELEASE'
 }
 
 ```
@@ -42,19 +32,10 @@ dependencies {
 ### Maven
 
 ```xml
-<repositories>
-    <repository>
-      <id>jcenter</id>
-      <url>https://jcenter.bintray.com/</url>
-    </repository>
-</repositories>
-```
-
-```xml
 <dependency>
-  <groupId>io.jkratz.springmediatr</groupId>
+  <groupId>io.github.jkratz55</groupId>
   <artifactId>spring-mediatr</artifactId>
-  <version>1.1-RELEASE</version>
+  <version>2.0.0-RELEASE</version>
   <type>pom</type>
 </dependency>
 ```

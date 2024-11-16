@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "io.github.jkratz55"
-version = "1.1-RELEASE"
+version = "2.0.0-RELEASE"
 
 repositories {
     mavenCentral()
@@ -20,22 +20,22 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
-    implementation(group = "org.springframework", name = "spring-context", version = "5.1.4.RELEASE")
-    implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.25")
+    implementation(group = "org.springframework", name = "spring-context", version = "6.2.0")
+    implementation(group = "org.slf4j", name = "slf4j-api", version = "2.0.16")
     implementation(group = "javax.validation", name = "validation-api", version = "2.0.1.Final")
 
     testImplementation(kotlin("test-junit"))
-    testImplementation(group = "org.springframework", name = "spring-test", version = "5.1.4.RELEASE")
-    testImplementation(group = "org.mockito", name = "mockito-core", version = "2.23.4")
+    testImplementation(group = "org.springframework", name = "spring-test", version = "6.2.0")
+    testImplementation(group = "org.mockito", name = "mockito-core", version = "5.14.2")
 }
 
 tasks.withType<KotlinCompile> {
-    compilerOptions.jvmTarget.set(JvmTarget.JVM_11)
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
