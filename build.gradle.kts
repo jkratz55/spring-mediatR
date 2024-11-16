@@ -1,23 +1,20 @@
-import com.jfrog.bintray.gradle.BintrayExtension
-import org.jetbrains.dokka.gradle.DokkaTask
+import org.gradle.api.tasks.bundling.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.gradle.api.publish.maven.MavenPublication
-import java.util.*
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jreleaser.model.Active
 
 plugins {
-    kotlin("jvm") version "1.3.70"
-    maven
-    `maven-publish`
-    jacoco
-    id("com.jfrog.bintray") version "1.8.5"
-    id("org.jetbrains.dokka") version "0.10.1"
+    kotlin("jvm") version "2.0.21"
+    id("org.jetbrains.dokka") version "1.9.20"
+    id("maven-publish")
+    id("org.jreleaser") version "1.15.0" // or the latest version
 }
 
-group = "io.jkratz.springmediatr"
+group = "io.github.jkratz55"
 version = "1.1-RELEASE"
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -33,114 +30,123 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_11)
 }
 
-val sourceJar = task("sourceJar", Jar::class) {
-    dependsOn(tasks["classes"])
-    classifier = "sources"
-    from(sourceSets.main.get().allSource)
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
 }
 
-val javadocJar = task("javadocJar", Jar::class) {
-    val javadoc = tasks["dokka"] as DokkaTask
-    javadoc.outputFormat = "javadoc"
-    javadoc.outputDirectory = "$buildDir/javadoc"
-    dependsOn(javadoc)
-    classifier = "javadoc"
-    from(javadoc.outputDirectory)
+// Create Sources and Javadoc JARs
+val sourcesJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("sources")
+    from(sourceSets["main"].allSource)
+}
+
+val dokkaJavadocJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("javadoc")
+    from(tasks.dokkaJavadoc)
 }
 
 publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            artifact(sourcesJar)
+            artifact(dokkaJavadocJar)
+
+            pom {
+                name.set("Spring Mediator")
+                description.set("A mediator library for Spring Framework")
+                url.set("https://github.com/jkratz55/spring-mediator")
+                inceptionYear.set("2020")
+
+                licenses {
+                    license {
+                        name.set("Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.html")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("jkratz55")
+                        name.set("Joseph Kratz")
+                        email.set("4985721+jkratz55@users.noreply.github.com") // Update to your actual email
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:https://github.com/jkratz55/spring-mediator.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:jkratz55/spring-mediator.git")
+                    url.set("https://github.com/jkratz55/spring-mediator")
+                }
+            }
+        }
+    }
+
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/jkratz55/spring-mediatR")
-            credentials {
-                username = System.getenv("GITHUB_USERNAME")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-    publications {
-        create("mavenJava", MavenPublication::class.java).apply {
-            groupId = project.group.toString()
-            this.artifactId = artifactId
-            version = project.version.toString()
-            pom {
-                description.set("Implementation of Mediator pattern for JVM and Spring Framework")
-                name.set(artifactId)
-                url.set("https://github.com/jkratz55/spring-mediatR")
-                licenses {
-                    license {
-                        name.set("Apache License 2.0")
-                        url.set("https://opensource.org/licenses/Apache-2.0")
-                        distribution.set("repo")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("jkratz55")
-                        name.set("Joseph Kratz")
-                        email.set("joseph.kratz06@gmail.com")
-                    }
-                }
-                scm {
-                    url.set("https://github.com/jkratz55/spring-mediatR")
-                }
-            }
-
-            from(components["java"])
-            artifact(sourceJar)
-            artifact(javadocJar)
-        }
-        create("gpr", MavenPublication::class.java).apply {
-            groupId = project.group.toString()
-            this.artifactId = artifactId
-            version = project.version.toString()
-            pom {
-                description.set("Implementation of Mediator pattern for JVM and Spring Framework")
-                name.set(artifactId)
-                url.set("https://github.com/jkratz55/spring-mediatR")
-                licenses {
-                    license {
-                        name.set("Apache License 2.0")
-                        url.set("https://opensource.org/licenses/Apache-2.0")
-                        distribution.set("repo")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("jkratz55")
-                        name.set("Joseph Kratz")
-                        email.set("joseph.kratz06@gmail.com")
-                    }
-                }
-                scm {
-                    url.set("https://github.com/jkratz55/spring-mediatR")
-                }
-            }
-
-           from(components["java"])
-            artifact(sourceJar)
-            artifact(javadocJar)
+            setUrl(layout.buildDirectory.dir("staging-deploy"))
         }
     }
 }
 
-bintray {
-    user = System.getenv("BINTRAY_USER")
-    key = System.getenv("BINTRAY_API_KEY")
-    pkg(closureOf<BintrayExtension.PackageConfig> {
-        repo = "maven-public"
-        name = "spring-mediatR"
-        setLicenses("Apache-2.0")
-        vcsUrl = "https://github.com/jkratz55/spring-mediatR"
-        publish = true
-        setPublications("mavenJava")
-        version(closureOf<BintrayExtension.VersionConfig> {
-            this.name = project.version.toString()
-            released = Date().toString()
-        })
-    })
+jreleaser {
+    project {
+        name.set("spring-mediator")
+        version.set("1.1-RELEASE")
+        description.set("A mediator library for Spring Framework")
+        copyright.set("2020 Joseph Kratz")
+        links{
+            homepage.set("https://github.com/jkratz55/spring-mediator")
+        }
+    }
+//    deploy {
+//        maven {
+//            nexus2 {
+//                create("maven-central") {
+//                    setActive("ALWAYS")
+//                    url.set("https://s01.oss.sonatype.org/service/local")
+//                    snapshotUrl.set("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+//                    closeRepository = true
+//                    releaseRepository = true
+//                    stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
+//                    username = System.getenv("SONATYPE_USERNAME")
+//                    password = System.getenv("SONATYPE_PASSWORD")
+//                    sign.set(false)
+//                }
+//            }
+//        }
+//    }
+    signing {
+        active.set(Active.ALWAYS)
+        passphrase.set(System.getenv("JRELEASER_GPG_PASSPHRASE") ?: "")
+        publicKey.set(System.getenv("JRELEASER_GPG_PUBLIC_KEY") ?: "")
+        secretKey.set(System.getenv("JRELEASER_GPG_SECRET_KEY") ?: "")
+        armored.set(true)
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                create("sonatype") {
+                    setActive("ALWAYS")
+                    url = "https://central.sonatype.com/api/v1/publisher"
+                    stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
+                    username = System.getenv("SONATYPE_USERNAME")
+                    password = System.getenv("SONATYPE_PASSWORD")
+                    sign.set(true)
+                }
+            }
+        }
+    }
+    release {
+        github {
+            token.set(System.getenv("GITHUB_TOKEN") ?: "dummy-github-token")
+        }
+    }
 }
+
