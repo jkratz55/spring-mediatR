@@ -36,7 +36,7 @@ class MediatorThreadFactory: ThreadFactory {
      *
      * Example: Mediator-1
      */
-    override fun newThread(r: Runnable?): Thread {
+    override fun newThread(r: Runnable): Thread {
         counter++
         return Thread(r, "Mediator-$counter")
     }

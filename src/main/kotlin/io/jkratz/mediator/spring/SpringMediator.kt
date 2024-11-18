@@ -39,7 +39,7 @@ import javax.validation.Valid
  * @constructor Creates the Spring specific implementation of MediatR using the default [Executor]
  *              which is a fixed thread pool with the amount of threads equal to the number of
  *              processors available.
- * @param applicationContext Spring application context containing the beans for MediatR
+ * @param registry Registry containing all the handlers
  */
 class SpringMediator constructor(private val registry: Registry): Mediator {
 
