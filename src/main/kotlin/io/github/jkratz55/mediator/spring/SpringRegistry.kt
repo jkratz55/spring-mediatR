@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediator.spring
+package io.github.jkratz55.mediator.spring
 
-import io.jkratz.mediator.core.*
-import io.jkratz.mediator.core.exception.*
+import io.github.jkratz55.mediator.core.*
+import io.github.jkratz55.mediator.core.exception.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext

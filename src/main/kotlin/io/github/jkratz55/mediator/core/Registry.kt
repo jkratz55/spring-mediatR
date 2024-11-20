@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediator.core
+package io.github.jkratz55.mediator.core
 
-import io.jkratz.mediator.core.exception.NoCommandHandlerException
-import io.jkratz.mediator.core.exception.NoEventHandlersException
-import io.jkratz.mediator.core.exception.NoRequestHandlerException
+import io.github.jkratz55.mediator.core.exception.NoCommandHandlerException
+import io.github.jkratz55.mediator.core.exception.NoEventHandlersException
+import io.github.jkratz55.mediator.core.exception.NoRequestHandlerException
 
 /**
  * A registry for handlers for messages that can be dispatched in Spring MediatR

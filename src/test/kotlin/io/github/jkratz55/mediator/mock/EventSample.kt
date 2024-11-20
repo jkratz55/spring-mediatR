@@ -1,7 +1,7 @@
-package io.jkratz.mediator.mock
+package io.github.jkratz55.mediator.mock
 
-import io.jkratz.mediator.core.Event
-import io.jkratz.mediator.core.EventHandler
+import io.github.jkratz55.mediator.core.Event
+import io.github.jkratz55.mediator.core.EventHandler
 
 data class OrderCreatedEvent(val orderId: Int): Event
 

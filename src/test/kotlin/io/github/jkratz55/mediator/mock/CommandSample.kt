@@ -1,7 +1,7 @@
-package io.jkratz.mediator.mock
+package io.github.jkratz55.mediator.mock
 
-import io.jkratz.mediator.core.Command
-import io.jkratz.mediator.core.CommandHandler
+import io.github.jkratz55.mediator.core.Command
+import io.github.jkratz55.mediator.core.CommandHandler
 
 class SayHelloCommand(val message: String): Command
 

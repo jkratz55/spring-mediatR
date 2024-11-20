@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediator.core
+package io.github.jkratz55.mediator.core
 
 /**
  * Marker interface for a Command

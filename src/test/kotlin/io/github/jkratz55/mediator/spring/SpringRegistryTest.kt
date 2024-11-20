@@ -1,10 +1,10 @@
-package io.jkratz.mediator.spring
+package io.github.jkratz55.mediator.spring
 
-import io.jkratz.mediator.core.CommandHandler
-import io.jkratz.mediator.core.EventHandler
-import io.jkratz.mediator.core.Registry
-import io.jkratz.mediator.core.RequestHandler
-import io.jkratz.mediator.mock.*
+import io.github.jkratz55.mediator.core.CommandHandler
+import io.github.jkratz55.mediator.core.EventHandler
+import io.github.jkratz55.mediator.core.Registry
+import io.github.jkratz55.mediator.core.RequestHandler
+import io.github.jkratz55.mediator.mock.*
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test

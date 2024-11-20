@@ -23,6 +23,7 @@ dependencies {
     implementation(group = "org.springframework", name = "spring-context", version = "6.2.0")
     implementation(group = "org.slf4j", name = "slf4j-api", version = "2.0.16")
     implementation(group = "javax.validation", name = "validation-api", version = "2.0.1.Final")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 
     testImplementation(kotlin("test-junit"))
     testImplementation(group = "org.springframework", name = "spring-test", version = "6.2.0")
@@ -105,23 +106,6 @@ jreleaser {
             homepage.set("https://github.com/jkratz55/spring-mediator")
         }
     }
-//    deploy {
-//        maven {
-//            nexus2 {
-//                create("maven-central") {
-//                    setActive("ALWAYS")
-//                    url.set("https://s01.oss.sonatype.org/service/local")
-//                    snapshotUrl.set("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-//                    closeRepository = true
-//                    releaseRepository = true
-//                    stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
-//                    username = System.getenv("SONATYPE_USERNAME")
-//                    password = System.getenv("SONATYPE_PASSWORD")
-//                    sign.set(false)
-//                }
-//            }
-//        }
-//    }
     signing {
         active.set(Active.ALWAYS)
         passphrase.set(System.getenv("JRELEASER_GPG_PASSPHRASE") ?: "")

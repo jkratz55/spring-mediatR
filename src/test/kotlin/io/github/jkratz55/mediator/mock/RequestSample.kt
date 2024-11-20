@@ -1,7 +1,7 @@
-package io.jkratz.mediator.mock
+package io.github.jkratz55.mediator.mock
 
-import io.jkratz.mediator.core.Request
-import io.jkratz.mediator.core.RequestHandler
+import io.github.jkratz55.mediator.core.Request
+import io.github.jkratz55.mediator.core.RequestHandler
 import java.math.BigDecimal
 
 data class CalculateOrderTotalRequest(val price: BigDecimal,

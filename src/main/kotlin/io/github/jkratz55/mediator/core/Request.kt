@@ -14,23 +14,32 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediator.core
+package io.github.jkratz55.mediator.core
 
 /**
- * Marker interface for an event
+ * Marker interface for a request
  *
  * @author Joseph Kratz
  * @since 1.0
+ * @param <TResponse> type of the return value
  */
-interface Event
+interface Request<out TResponse>
 
 /**
- * Handler for a specific event
+ * A handler for a request
  *
  * @author Joseph Kratz
  * @since 1.0
+ * @param <TTRequest> the type of TRequest to be handled
+ * @param <TResponse> the type of the response
  */
-interface EventHandler<in TEvent> where TEvent: Event  {
+interface RequestHandler<in TRequest, TResponse> where TRequest: Request<TResponse> {
 
-    fun handle(event: TEvent)
+    /**
+     * Handles the request
+     *
+     * @param request request to handle
+     * @return the response of the request
+     */
+    fun handle(request: TRequest): TResponse
 }

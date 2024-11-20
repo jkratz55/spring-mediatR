@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package io.jkratz.mediator.core.exception
+package io.github.jkratz55.mediator.core.exception
 
-import io.jkratz.mediator.core.*
+import io.github.jkratz55.mediator.core.*
 
 /**
  * Exception thrown when there is not a [RequestHandler] available for a [Request]
