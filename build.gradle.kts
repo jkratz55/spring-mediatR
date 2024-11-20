@@ -99,9 +99,9 @@ publishing {
 jreleaser {
     project {
         name.set("spring-mediator")
-        version.set("1.1-RELEASE")
+        version.set("2.0.0-RELEASE")
         description.set("A mediator library for Spring Framework")
-        copyright.set("2020 Joseph Kratz")
+        copyright.set("2024 Joseph Kratz")
         links{
             homepage.set("https://github.com/jkratz55/spring-mediator")
         }
